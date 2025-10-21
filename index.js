@@ -25,6 +25,11 @@ app.get('/', (req, res) => {
   res.render('home', { shortUrl, urlData });
 });
 
+app.get('/demo', (req, res) => {
+  logger.info('Demo endpoint hit');
+  res.json({ message: 'Hello from URL Shortener!' });
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
