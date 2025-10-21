@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .short-url {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            word-break: break-all;
+        }
+        
+        .short-url a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .stats-section {
+            background: #fff3e0;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        .stats-title {
+            color: #e65100;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .visit-item {
+            background: white;
+            border-left: 4px solid #ff9800;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .visit-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .analytics-form {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e1e1e1;
+        }
+        
+        .analytics-title {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🔗 URL Shortener</h1>
+        
+        <form action="/url/shorten" method="POST">
+            <div class="form-group">
+                <label for="url">Enter URL to shorten:</label>
+                <input type="url" id="url" name="url" placeholder="https://example.com" required>
+            </div>
+            <button type="submit" class="btn">✨ Shorten URL</button>
+        </form>
+
+        <% if (shortUrl) { %>
+            <div class="result-section">
+                <h3>🎉 Your shortened URL is ready!</h3>
+                <div class="short-url">
+                    <a href="<%= shortUrl %>" target="_blank"><%= shortUrl %></a>
+                </div>
+                <button onclick="copyToClipboard('<%= shortUrl %>')" class="btn">📋 Copy to Clipboard</button>
+            </div>
+        <% } %>
+
+        <% if (urlData && urlData.visitedHistory) { %>
+            <div class="stats-section">
+                <h3 class="stats-title">📊 URL Statistics</h3>
+                <p><strong>Original URL:</strong> <%= urlData.redirectUrl %></p>
+                <p><strong>Total Clicks:</strong> <%= urlData.visitedHistory.length %></p>
+                <p><strong>Created:</strong> <%= new Date(urlData.createdAt).toLocaleString() %></p>
+                
+                <% if (urlData.visitedHistory.length > 0) { %>
+                    <h4 style="margin-top: 20px; color: #e65100;">Recent Visits:</h4>
+                    <% urlData.visitedHistory.slice(-10).reverse().forEach(visit => { %>
+                        <div class="visit-item">
+                            <div class="visit-time">🕒 <%= new Date(visit.timestamp).toLocaleString() %></div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+        <% } %>
+
+        <div class="analytics-form">
+            <h3 class="analytics-title">📈 View URL Analytics</h3>
+            <form action="/url/analytics" method="POST">
+                <div class="form-group">
+                    <label for="shortId">Enter Short ID to view stats:</label>
+                    <input type="text" id="shortId" name="shortId" placeholder="Enter the short ID (e.g., abc123)" required>
+                </div>
+                <button type="submit" class="btn">📊 View Analytics</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Short URL copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

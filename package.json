@@ -1,0 +1,23 @@
+{
+  "name": "url_shortner",
+  "version": "1.0.0",
+  "description": "create short urls to redirect to ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "author": "prince soni",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "mongoose": "^8.19.2",
+    "short-id": "^0.1.0-1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
