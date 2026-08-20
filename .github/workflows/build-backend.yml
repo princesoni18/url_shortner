@@ -1,0 +1,41 @@
+name: Build backend
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Assemble production build
+        run: |
+          mkdir build
+          cp index.js package.json package-lock.json build/
+          cp -r controllers middleware models routes utils views build/
+          npm ci --omit=dev --prefix build
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: build
+          if-no-files-found: error
+          retention-days: 7
