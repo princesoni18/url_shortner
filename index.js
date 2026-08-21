@@ -18,6 +18,10 @@ app.use(express.urlencoded({ extended: true }));
 const shortUrlRoutes = require('./routes/short_url');
 app.use('/url', shortUrlRoutes);
 
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime() });
+});
+
 app.get('/', (req, res) => {
   logger.info('Root endpoint hit');
   const shortUrl = req.query.shortUrl ? `${req.protocol}://${req.get('host')}/url/${req.query.shortUrl}` : null;
