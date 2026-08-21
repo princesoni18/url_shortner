@@ -25,15 +25,15 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Intentional test failure
-        run: exit 1
-
       - name: Assemble production build
         run: |
           mkdir build
           cp index.js package.json package-lock.json build/
           cp -r controllers models routes utils views build/
           npm ci --omit=dev --prefix build
+
+      - name: Validate backend entrypoint
+        run: test -f build/server.js
 
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
